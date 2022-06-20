@@ -20,6 +20,11 @@ public class Campo {
     }
 
     boolean adicionarVizinho(Campo vizinho){
+        /*
+         * Esse método seleciona todos os blocos
+         * que estão ao lado, fazendo assim com que seja possível
+         * a verificação dos campos minados!
+         */
         boolean linhaDiferente = linha != vizinho.linha;
         boolean colunaDiferente = coluna != vizinho.coluna;
         boolean diagonal = linhaDiferente && colunaDiferente;
@@ -32,11 +37,8 @@ public class Campo {
             vizinhos.add(vizinho);
             return true;
 
-        }else if(delta == 2 && diagonal){
-            return true;
-
-        }else{
-            return false;
+        }else {
+            return delta == 2 && diagonal;
         }
 
     }
