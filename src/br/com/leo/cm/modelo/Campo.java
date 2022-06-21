@@ -1,5 +1,7 @@
 package br.com.leo.cm.modelo;
 
+import br.com.leo.cm.excecao.ExplosaoException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,13 +9,20 @@ public class Campo {
 
     private final int linha;
     private final int coluna;
-
+    private int bombas;
+    private boolean seguro = true;
     private boolean aberto = false;
     private boolean minado = false;
     private boolean marcado = false;
+    /**
+     * Classe Campo, esta classe é responsavel por criar
+     * cade bloco do campo minado, é ela que ira criar campos minado,
+     * e também é responsavel pela marcacao do bloco!.
+     */
+
     private List<Campo> vizinhos = new ArrayList<>();
 
-    public Campo(int linha, int coluna) {
+    Campo(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
     }
@@ -24,22 +33,117 @@ public class Campo {
          * que estão ao lado, fazendo assim com que seja possível
          * a verificação dos campos minados!
          */
-        boolean linhaDiferente = linha != vizinho.linha;
-        boolean colunaDiferente = coluna != vizinho.coluna;
+        boolean linhaDiferente = this.linha != vizinho.linha;
+        boolean colunaDiferente = this.coluna != vizinho.coluna;
         boolean diagonal = linhaDiferente && colunaDiferente;
 
-        int deltaLinha = Math.abs(linha - vizinho.linha);
-        int deltaColuna = Math.abs(coluna - vizinho.coluna);
+        int deltaLinha = Math.abs(this.linha - vizinho.linha);
+        int deltaColuna = Math.abs(this.coluna - vizinho.coluna);
         int delta = deltaLinha + deltaColuna;
 
-        if(delta == 1 && !diagonal){
-            vizinhos.add(vizinho);
+        if((delta == 1 && !diagonal) || (delta == 2 && diagonal)){
+            this.vizinhos.add(vizinho);
             return true;
 
-        }else {
-            return delta == 2 && diagonal;
+        }else{
+            return false;
         }
 
+    }
+
+    void alternarMarcacao(){
+        /*
+         * Esse método é utilizado para realizar a marcação
+         * dos blocos desejados pelo usuário
+         */
+        if(!this.aberto){
+            this.marcado = !marcado;
+        }
+    }
+
+    boolean abrir(){
+        /*
+         * Esse método é responsavel por abrir os blocos,
+         * para que um bloco seja aberto é necessario que ele não
+         * esteja marcado e não tenha sido aberto anteriormente,
+         * quando aberto, se for uma vizinhança segura todos os blocos
+         * ao seu redor também serão abertos, se o campo aberto esteja
+         * minado ele ira lançar a exceção ExplosaoException
+         */
+        if(!this.aberto && !this.marcado){
+            this.aberto = true;
+
+            if(this.minado){
+                throw new ExplosaoException();
+            }else{
+                for (var k1 : vizinhos){
+                    if(k1.minado){
+                        this.bombas++;
+                        this.seguro = false;
+                    }
+                }
+                if(this.seguro){
+                    vizinhos.forEach(Campo::abrir);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void minar(){
+        if(!this.aberto && !this.minado){
+            this.minado = true;
+        }
+    }
+    public boolean Objetivo(){
+        boolean desvendado = !this.minado && this.aberto;
+        boolean proteger = this.minado && this.marcado;
+        return desvendado && proteger;
+    }
+    public void reiniciar(){
+        this.aberto = false;
+        this.marcado = false;
+        this.minado = false;
+
+    }
+    @Override
+    public String toString(){
+        if(this.marcado){
+            return "X";
+
+        }else if(this.aberto && this.minado){
+            return "*";
+
+        }else if(this.aberto && this.bombas > 0){
+            return Integer.toString(this.bombas);
+
+        }else if(this.aberto){
+            return " ";
+
+        }else{
+            return "?";
+        }
+
+    }
+    public int getBombas() {
+        return bombas;
+    }
+
+    public boolean isAberto() {
+        return aberto;
+    }
+
+    public boolean isMarcado() {
+        return marcado;
+    }
+
+    public int getLinha() {
+        return linha;
+    }
+
+    public int getColuna() {
+        return coluna;
     }
 }
 /*
