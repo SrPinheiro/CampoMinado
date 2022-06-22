@@ -1,8 +1,9 @@
-package br.com.leo.cm.modelo;
+/*package br.com.leo.cm.modelo;
 
 import br.com.leo.cm.excecao.ExplosaoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 

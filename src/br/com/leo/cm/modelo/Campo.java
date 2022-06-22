@@ -91,15 +91,17 @@ public class Campo {
         return false;
     }
 
-    public void minar(){
+    public boolean minar(){
         if(!this.aberto && !this.minado){
             this.minado = true;
+            return true;
         }
+        return false;
     }
     public boolean Objetivo(){
         boolean desvendado = !this.minado && this.aberto;
         boolean proteger = this.minado && this.marcado;
-        return desvendado && proteger;
+        return desvendado || proteger;
     }
     public void reiniciar(){
         this.aberto = false;
@@ -110,19 +112,19 @@ public class Campo {
     @Override
     public String toString(){
         if(this.marcado){
-            return "X";
+            return "\u001B[35mX";
 
         }else if(this.aberto && this.minado){
-            return "*";
+            return "\u001B[31m*";
 
         }else if(this.aberto && this.bombas > 0){
-            return Integer.toString(this.bombas);
+            return String.format("\u001B[34m%d",this.bombas);
 
         }else if(this.aberto){
             return " ";
 
         }else{
-            return "?";
+            return "\u001B[37m?";
         }
 
     }
