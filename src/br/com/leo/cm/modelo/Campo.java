@@ -21,7 +21,7 @@ public class Campo {
      * e também é responsavel pela marcacao do bloco!.
      */
 
-    private List<Campo> vizinhos = new ArrayList<>();
+    private final List<Campo> vizinhos = new ArrayList<>();
 
     Campo(int linha, int coluna) {
         this.linha = linha;
@@ -32,7 +32,7 @@ public class Campo {
         this.aberto = true;
     }
 
-    boolean adicionarVizinho(Campo vizinho){
+    void adicionarVizinho(Campo vizinho){
         /*
          * Esse método seleciona todos os blocos
          * que estão ao lado, fazendo assim com que seja possível
@@ -48,16 +48,8 @@ public class Campo {
 
         if((delta == 1 && !diagonal) || (delta == 2 && diagonal)){
             this.vizinhos.add(vizinho);
-            return true;
 
-        }else{
-            return false;
         }
-
-    }
-
-    public boolean isMarcado() {
-        return marcado;
     }
 
     void alternarMarcacao(){
@@ -70,7 +62,7 @@ public class Campo {
         }
     }
 
-    boolean abrir(){
+    void abrir(){
         /*
          * Esse método é responsavel por abrir os blocos,
          * para que um bloco seja aberto é necessario que ele não
@@ -95,9 +87,7 @@ public class Campo {
                     vizinhos.forEach(Campo::abrir);
                 }
             }
-            return true;
         }
-        return false;
     }
 
     public boolean minar(){
