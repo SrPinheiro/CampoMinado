@@ -28,7 +28,6 @@ public class Tabuleiro {
             arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::abrir);
 
         }catch (ExplosaoException e){
-            //arena.stream().findAny().ifPresent(Campo::setAberto);
             arena.forEach(c ->{
                 if(c.isMinado()){
                     c.setAberto();
@@ -97,14 +96,14 @@ public class Tabuleiro {
     @Override
     public String toString(){
         for (int i = 1; i <= colunas; i++) {
-            System.out.printf("  %d", i);
+            System.out.printf("  \u001B[37m%d", i);
         }
         System.out.println();
         StringBuilder sb = new StringBuilder();
         int x = 0;
         int y = 1;
         for (int i = 0; i < linhas; i++) {
-            sb.append(String.format("%d", y++));
+            sb.append(String.format("\u001B[37m%d", y++));
             for (int j = 0; j < colunas; j++) {
                 sb.append(" ");
                 sb.append(arena.get(x));

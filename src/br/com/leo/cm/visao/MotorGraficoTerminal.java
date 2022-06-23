@@ -7,8 +7,8 @@ import br.com.leo.cm.modelo.Tabuleiro;
 import java.util.Scanner;
 
 public class MotorGraficoTerminal {
-    private Tabuleiro estadio;
-    private Scanner scan = new Scanner(System.in);
+    private final Tabuleiro estadio;
+    private final Scanner scan = new Scanner(System.in);
     int op;
 
     public MotorGraficoTerminal(Tabuleiro tb){
@@ -46,34 +46,38 @@ public class MotorGraficoTerminal {
     private void ciclo() {
         try{
             while(!this.estadio.ObjetivoAlcancado()){
-                System.out.println(this.estadio.toString());
+                System.out.println(this.estadio);
 
                 String valor = capturarValores();
                 String[] cordenadas = valor.split(",");
                 System.out.println("1- Abrir 2- Marcar");
                 op = scan.nextInt();
                 scan.nextLine();
-                switch(op){
-                    case 1 -> this.estadio.abrir(Integer.parseInt(cordenadas[0]) - 1, Integer.parseInt(cordenadas[1]) - 1);
-                    case 2 -> this.estadio.marcarCampo(Integer.parseInt(cordenadas[0]) - 1, Integer.parseInt(cordenadas[1]) - 1);
+                try {
+                    switch (op) {
+                        case 1 -> this.estadio.abrir(Integer.parseInt(cordenadas[0]) - 1, Integer.parseInt(cordenadas[1]) - 1);
+                        case 2 -> this.estadio.marcarCampo(Integer.parseInt(cordenadas[0]) - 1, Integer.parseInt(cordenadas[1]) - 1);
+                    }
+                }catch(NumberFormatException e ){
+                    //
                 }
 
 
             }
             System.out.println(this.estadio);
-            System.out.println("---------------------------------------------");
+            System.out.println("\u001B[32m---------------------------------------------");
             System.out.println("Você ganhou!!");
             System.out.println("---------------------------------------------");
         }catch(ExplosaoException e){
             System.out.println(this.estadio);
-            System.out.println("---------------------------------------------");
+            System.out.println("\u001B[31m---------------------------------------------");
             System.out.println("Você perdeu!!");
             System.out.println("---------------------------------------------");
         }
     }
 
     private String capturarValores(){
-        System.out.println("Digite as cordenadas (X:Y)");
+        System.out.println("\u001B[37mDigite as cordenadas (X:Y)");
         String opcao = scan.nextLine();
         if ("SAIR".equalsIgnoreCase(opcao)) {
             throw new SairException();
