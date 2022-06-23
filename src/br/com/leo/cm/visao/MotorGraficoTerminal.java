@@ -6,12 +6,12 @@ import br.com.leo.cm.modelo.Tabuleiro;
 
 import java.util.Scanner;
 
-public class MotorGrafico {
+public class MotorGraficoTerminal {
     private Tabuleiro estadio;
     private Scanner scan = new Scanner(System.in);
     int op;
 
-    public MotorGrafico(Tabuleiro tb){
+    public MotorGraficoTerminal(Tabuleiro tb){
         this.estadio = tb;
         iniciarGame();
     }
@@ -46,9 +46,9 @@ public class MotorGrafico {
     private void ciclo() {
         try{
             while(!this.estadio.ObjetivoAlcancado()){
-                System.out.println(this.estadio);
+                System.out.println(this.estadio.toString());
 
-                String valor = capturarValores("Digite as cordenadas (X:Y)");
+                String valor = capturarValores();
                 String[] cordenadas = valor.split(",");
                 System.out.println("1- Abrir 2- Marcar");
                 op = scan.nextInt();
@@ -72,10 +72,10 @@ public class MotorGrafico {
         }
     }
 
-    private String capturarValores(String texto){
-        System.out.println(texto);
+    private String capturarValores(){
+        System.out.println("Digite as cordenadas (X:Y)");
         String opcao = scan.nextLine();
-        if ("SAIR".equals(opcao.toUpperCase())) {
+        if ("SAIR".equalsIgnoreCase(opcao)) {
             throw new SairException();
         }
         return opcao;

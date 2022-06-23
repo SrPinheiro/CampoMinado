@@ -14,6 +14,7 @@ public class Campo {
     private boolean aberto = false;
     private boolean minado = false;
     private boolean marcado = false;
+
     /**
      * Classe Campo, esta classe é responsavel por criar
      * cade bloco do campo minado, é ela que ira criar campos minado,
@@ -25,6 +26,10 @@ public class Campo {
     Campo(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
+    }
+
+    void setAberto() {
+        this.aberto = true;
     }
 
     boolean adicionarVizinho(Campo vizinho){
@@ -49,6 +54,10 @@ public class Campo {
             return false;
         }
 
+    }
+
+    public boolean isMarcado() {
+        return marcado;
     }
 
     void alternarMarcacao(){
@@ -98,11 +107,11 @@ public class Campo {
         }
         return false;
     }
-    public boolean Objetivo(){
-        boolean desvendado = !this.minado && this.aberto;
-        boolean proteger = this.minado && this.marcado;
-        return desvendado || proteger;
+
+    public boolean isMinado() {
+        return minado;
     }
+
     public void reiniciar(){
         this.aberto = false;
         this.marcado = false;
@@ -128,20 +137,12 @@ public class Campo {
         }
 
     }
-    public int getBombas() {
-        return bombas;
+    public int getLinha() {
+        return linha;
     }
 
     public boolean isAberto() {
         return aberto;
-    }
-
-    public boolean isMarcado() {
-        return marcado;
-    }
-
-    public int getLinha() {
-        return linha;
     }
 
     public int getColuna() {

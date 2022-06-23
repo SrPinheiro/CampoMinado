@@ -1,12 +1,15 @@
 package br.com.leo.cm.modelo;
 
+import br.com.leo.cm.excecao.ExplosaoException;
+
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Tabuleiro {
 
-    private int linhas;
-    private int colunas;
-    private int minas;
+    private final int linhas;
+    private final int colunas;
+    private final int minas;
 
     private final ArrayList<Campo> arena = new ArrayList<>();
 
@@ -21,15 +24,32 @@ public class Tabuleiro {
     }
 
     public void abrir(int linha, int coluna){
-        arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::abrir);
+        try{
+            arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::abrir);
 
+        }catch (ExplosaoException e){
+            //arena.stream().findAny().ifPresent(Campo::setAberto);
+            arena.forEach(c ->{
+                if(c.isMinado()){
+                    c.setAberto();
+                }
+            });
+            throw e;
+        }
     }
+
     public void marcarCampo(int linha, int coluna){
         arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::alternarMarcacao);
     }
 
     public boolean ObjetivoAlcancado() {
-        return arena.stream().allMatch(Campo::Objetivo);
+        AtomicBoolean objetivo = new AtomicBoolean(true);
+        arena.forEach(c ->{
+            if(!c.isMinado() && !c.isAberto()){
+                objetivo.set(false);
+            }
+        });
+        return Boolean.parseBoolean(String.valueOf(objetivo));
     }
 
     public void reiniciar(){
