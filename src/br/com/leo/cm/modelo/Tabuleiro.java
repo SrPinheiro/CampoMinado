@@ -3,15 +3,18 @@ package br.com.leo.cm.modelo;
 import br.com.leo.cm.excecao.ExplosaoException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
-public class Tabuleiro {
+public class Tabuleiro implements CampoObserver {
 
     private final int linhas;
     private final int colunas;
     private final int minas;
 
     private final ArrayList<Campo> arena = new ArrayList<>();
+    private final List<Consumer<ResultadoEvent>> observadores = new ArrayList<>();
 
     public Tabuleiro(int linhas, int colunas, int minas) {
         this.linhas = linhas;
@@ -21,27 +24,28 @@ public class Tabuleiro {
         gerarCampos();
         associarVizinhos();
         sortearMinas();
+        arena.forEach(Campo::procurarBombas);
     }
 
+    public void registrarObservador(Consumer<ResultadoEvent> observador){
+        this.observadores.add(observador);
+
+    }
+    private void notificarObservadores(boolean result){
+        this.observadores.stream().forEach(e -> e.accept(new ResultadoEvent(result)));
+
+    }
     public void abrir(int linha, int coluna){
-        try{
-            arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::abrir);
+        arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::abrir);
 
-        }catch (ExplosaoException e){
-            arena.forEach(c ->{
-                if(c.isMinado()){
-                    c.setAberto();
-                }
-            });
-            throw e;
-        }
     }
+
 
     public void marcarCampo(int linha, int coluna){
         arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::alternarMarcacao);
     }
 
-    public boolean ObjetivoAlcancado() {
+    public boolean objetivoAlcancado() {
         AtomicBoolean objetivo = new AtomicBoolean(true);
         arena.forEach(c ->{
             if(!c.isMinado() && !c.isAberto()){
@@ -59,7 +63,9 @@ public class Tabuleiro {
     private void gerarCampos() {
         for (int linha = 0; linha < this.linhas; linha++) {
             for (int coluna = 0; coluna < this.colunas; coluna++) {
-                    arena.add(new Campo(linha, coluna));
+                Campo campo = new Campo(linha,coluna);
+                campo.registrarObservador(this);
+                arena.add(campo);
             }
         }
 
@@ -71,6 +77,14 @@ public class Tabuleiro {
                 k1.adicionarVizinho(k2);
             }
         }
+    }
+
+    public int getLinhas() {
+        return linhas;
+    }
+
+    public int getColunas() {
+        return colunas;
     }
 
     private void sortearMinas() {
@@ -114,4 +128,34 @@ public class Tabuleiro {
         }
         return sb.toString();
     }
+    public void paraCada(Consumer<Campo> func){
+        arena.forEach(func);
+    }
+
+    @Override
+    public void eventoOcorreu(Campo campo, CampoEvent event) {
+        if(event == CampoEvent.EXPLODIR){
+            this.mostrarMinas();
+            notificarObservadores(false);
+
+        }else if(this.objetivoAlcancado()){
+            System.out.println("Você ganhou!");
+            notificarObservadores(true);
+        }
+
+    }
+
+    private void mostrarMinas(){
+        arena.stream().filter( c -> c.isMinado()).forEach(c-> c.setAberto());
+
+    }
+
 }
+/*
+ * Codigo feito por Leonardo Pinheiro
+ * IDE: Intellij IDEA — JetBrains
+ * Turma: Info 0121
+ * IFNMG — Campus Almenara
+ * GitHub: https://github.com/SrPinheiro
+ * Data: 04/08/2022
+ */

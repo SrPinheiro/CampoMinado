@@ -11,8 +11,14 @@ public class Campo {
     private final int coluna;
     private int bombas;
     private boolean seguro = true;
+
+
+
     private boolean aberto = false;
     private boolean minado = false;
+
+
+
     private boolean marcado = false;
 
     /**
@@ -22,14 +28,25 @@ public class Campo {
      */
 
     private final List<Campo> vizinhos = new ArrayList<>();
+    private List<CampoObserver> observers = new ArrayList<>();
+
 
     Campo(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
     }
 
+    public void registrarObservador(CampoObserver observer){
+        observers.add(observer);
+
+    }
+    private void notificarObservadores(CampoEvent event){
+        observers.forEach(obs -> obs.eventoOcorreu(this, event));
+    }
+
     void setAberto() {
         this.aberto = true;
+        this.notificarObservadores(CampoEvent.ABRIR);
     }
 
     void adicionarVizinho(Campo vizinho){
@@ -52,17 +69,28 @@ public class Campo {
         }
     }
 
-    void alternarMarcacao(){
+    public void alternarMarcacao(){
         /*
          * Esse método é utilizado para realizar a marcação
          * dos blocos desejados pelo usuário
          */
         if(!this.aberto){
             this.marcado = !marcado;
+            if(this.marcado){
+                notificarObservadores(CampoEvent.MARCAR);
+
+            }else{
+                notificarObservadores(CampoEvent.DESMARCAR);
+
+            }
         }
     }
 
-    void abrir(){
+    public int getBombas() {
+        return bombas;
+    }
+
+    public void abrir(){
         /*
          * Esse método é responsavel por abrir os blocos,
          * para que um bloco seja aberto é necessario que ele não
@@ -72,17 +100,12 @@ public class Campo {
          * minado ele ira lançar a exceção ExplosaoException
          */
         if(!this.aberto && !this.marcado){
-            this.aberto = true;
 
             if(this.minado){
-                throw new ExplosaoException();
+                notificarObservadores(CampoEvent.EXPLODIR);
             }else{
-                for (var k1 : vizinhos){
-                    if(k1.minado){
-                        this.bombas++;
-                        this.seguro = false;
-                    }
-                }
+
+                this.setAberto();
                 if(this.seguro){
                     vizinhos.forEach(Campo::abrir);
                 }
@@ -96,6 +119,18 @@ public class Campo {
             return true;
         }
         return false;
+    }
+    void procurarBombas(){
+        for (var k1 : vizinhos){
+            if(k1.minado){
+                this.bombas++;
+                System.out.println("+1");
+                this.seguro = false;
+            }
+        }
+    }
+    public boolean isMarcado() {
+        return marcado;
     }
 
     public boolean isMinado() {
@@ -138,7 +173,11 @@ public class Campo {
     public int getColuna() {
         return coluna;
     }
+    public boolean isSeguro() {
+        return seguro;
+    }
 }
+
 /*
  * Codigo feito por Leonardo Pinheiro
  * IDE: Intellij IDEA — JetBrains
