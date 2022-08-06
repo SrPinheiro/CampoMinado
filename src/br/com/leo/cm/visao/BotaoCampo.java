@@ -3,7 +3,6 @@ package br.com.leo.cm.visao;
 import br.com.leo.cm.modelo.Campo;
 import br.com.leo.cm.modelo.CampoEvent;
 import br.com.leo.cm.modelo.CampoObserver;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -14,7 +13,7 @@ public class BotaoCampo extends JButton implements CampoObserver, MouseListener 
     private final Color BG_MARCADO = new Color(8,179,247);
     private final Color BG_EXPLOSAO= new Color(189,66,68);
     private final Color TEXTO_VERDE = new Color(0,100,0);
-    private Campo campo;
+    private final Campo campo;
     BotaoCampo(Campo campo){
         this.campo = campo;
         setBackground(BG_PADRAO);
@@ -37,17 +36,22 @@ public class BotaoCampo extends JButton implements CampoObserver, MouseListener 
 
     private void aplicarEstiloPadrao() {
         setBackground(BG_PADRAO);
+        setBorder(BorderFactory.createBevelBorder(0));
         setText("");
     }
 
     private void aplicarEstiloExplodir() {
-        System.out.println("Explodiu");
+        setBackground(BG_EXPLOSAO);
+        setForeground(Color.WHITE);
+        setText("X");
+
+        //System.out.println("Explodiu");
     }
 
     private void aplicarEstiloMarcar() {
         if(campo.isMarcado()){
             setBackground(BG_MARCADO);
-            setText("X");
+            setText("M");
         }else{
             this.aplicarEstiloPadrao();
         }
@@ -55,13 +59,14 @@ public class BotaoCampo extends JButton implements CampoObserver, MouseListener 
     }
 
     private void aplicarEstiloAbrir() {
+        if(campo.isMinado()){
+            setBackground(BG_EXPLOSAO);
+            return;
+        }
         setBackground(BG_PADRAO);
         setBorder(BorderFactory.createLineBorder(Color.gray));
-        System.out.println(campo.getBombas());
         switch (campo.getBombas()){
-            case 1 -> {
-                setForeground(TEXTO_VERDE);
-            }
+            case 1 -> setForeground(TEXTO_VERDE);
             case 2 -> setForeground(Color.BLUE);
             case 3 -> setForeground(Color.YELLOW);
         }
@@ -89,3 +94,11 @@ public class BotaoCampo extends JButton implements CampoObserver, MouseListener 
     public void mouseEntered(MouseEvent mouseEvent) {}
     public void mouseExited(MouseEvent mouseEvent) {}
 }
+/*
+ * Codigo feito por Leonardo Pinheiro
+ * IDE: Intellij IDEA — JetBrains
+ * Turma: Info 0121
+ * IFNMG — Campus Almenara
+ * GitHub: https://github.com/SrPinheiro
+ * Data: 04/08/2022
+ */

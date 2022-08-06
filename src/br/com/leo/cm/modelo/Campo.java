@@ -1,7 +1,5 @@
 package br.com.leo.cm.modelo;
 
-import br.com.leo.cm.excecao.ExplosaoException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,24 +9,19 @@ public class Campo {
     private final int coluna;
     private int bombas;
     private boolean seguro = true;
-
-
-
     private boolean aberto = false;
     private boolean minado = false;
-
-
-
     private boolean marcado = false;
+
+    private final List<Campo> vizinhos = new ArrayList<>();
+    private final List<CampoObserver> observers = new ArrayList<>();
+
 
     /**
      * Classe Campo, esta classe é responsavel por criar
      * cade bloco do campo minado, é ela que ira criar campos minado,
      * e também é responsavel pela marcacao do bloco!.
      */
-
-    private final List<Campo> vizinhos = new ArrayList<>();
-    private List<CampoObserver> observers = new ArrayList<>();
 
 
     Campo(int linha, int coluna) {
@@ -104,7 +97,6 @@ public class Campo {
             if(this.minado){
                 notificarObservadores(CampoEvent.EXPLODIR);
             }else{
-
                 this.setAberto();
                 if(this.seguro){
                     vizinhos.forEach(Campo::abrir);
@@ -121,10 +113,11 @@ public class Campo {
         return false;
     }
     void procurarBombas(){
+        this.bombas = 0;
+
         for (var k1 : vizinhos){
             if(k1.minado){
                 this.bombas++;
-                System.out.println("+1");
                 this.seguro = false;
             }
         }
@@ -141,6 +134,8 @@ public class Campo {
         this.aberto = false;
         this.marcado = false;
         this.minado = false;
+        this.seguro = true;
+        this.notificarObservadores(CampoEvent.REINICIAR);
 
     }
     @Override
@@ -162,17 +157,10 @@ public class Campo {
         }
 
     }
-    public int getLinha() {
-        return linha;
-    }
-
     public boolean isAberto() {
         return aberto;
     }
 
-    public int getColuna() {
-        return coluna;
-    }
     public boolean isSeguro() {
         return seguro;
     }

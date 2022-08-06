@@ -1,7 +1,5 @@
 package br.com.leo.cm.modelo;
 
-import br.com.leo.cm.excecao.ExplosaoException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,19 +29,6 @@ public class Tabuleiro implements CampoObserver {
         this.observadores.add(observador);
 
     }
-    private void notificarObservadores(boolean result){
-        this.observadores.stream().forEach(e -> e.accept(new ResultadoEvent(result)));
-
-    }
-    public void abrir(int linha, int coluna){
-        arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::abrir);
-
-    }
-
-
-    public void marcarCampo(int linha, int coluna){
-        arena.stream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(Campo::alternarMarcacao);
-    }
 
     public boolean objetivoAlcancado() {
         AtomicBoolean objetivo = new AtomicBoolean(true);
@@ -58,25 +43,7 @@ public class Tabuleiro implements CampoObserver {
     public void reiniciar(){
         arena.forEach(Campo::reiniciar);
         sortearMinas();
-    }
-
-    private void gerarCampos() {
-        for (int linha = 0; linha < this.linhas; linha++) {
-            for (int coluna = 0; coluna < this.colunas; coluna++) {
-                Campo campo = new Campo(linha,coluna);
-                campo.registrarObservador(this);
-                arena.add(campo);
-            }
-        }
-
-    }
-
-    private void associarVizinhos() {
-        for (var k1 : arena) {
-            for (var k2 : arena) {
-                k1.adicionarVizinho(k2);
-            }
-        }
+        arena.forEach(Campo::procurarBombas);
     }
 
     public int getLinhas() {
@@ -87,24 +54,21 @@ public class Tabuleiro implements CampoObserver {
         return colunas;
     }
 
-    private void sortearMinas() {
-        byte armadas = 0;
-       externo: while(armadas < this.minas){
-            for (var k1 : arena) {
-                if(!(armadas < this.minas)){
-                    break externo;
+    public void paraCada(Consumer<Campo> func){
+        arena.forEach(func);
+    }
 
-                }else {
-                    int aleatorio = (int) (1 + Math.random() * 50);
+    @Override
+    public void eventoOcorreu(Campo campo, CampoEvent event) {
+        if(event == CampoEvent.EXPLODIR){
+            this.mostrarMinas();
+            notificarObservadores(false);
 
-                    if (aleatorio == 1) {
-                        if (k1.minar()) {
-                            armadas++;
-                        }
-                    }
-                }
-            }
+        }else if(this.objetivoAlcancado()){
+            System.out.println("Você ganhou!");
+            notificarObservadores(true);
         }
+
     }
 
     @Override
@@ -128,26 +92,53 @@ public class Tabuleiro implements CampoObserver {
         }
         return sb.toString();
     }
-    public void paraCada(Consumer<Campo> func){
-        arena.forEach(func);
+
+    private void mostrarMinas(){
+        arena.stream().filter(Campo::isMinado).forEach(Campo::setAberto);
+
     }
 
-    @Override
-    public void eventoOcorreu(Campo campo, CampoEvent event) {
-        if(event == CampoEvent.EXPLODIR){
-            this.mostrarMinas();
-            notificarObservadores(false);
+    private void notificarObservadores(boolean result){
+        this.observadores.forEach(e -> e.accept(new ResultadoEvent(result)));
 
-        }else if(this.objetivoAlcancado()){
-            System.out.println("Você ganhou!");
-            notificarObservadores(true);
+    }
+    private void gerarCampos() {
+        for (int linha = 0; linha < this.linhas; linha++) {
+            for (int coluna = 0; coluna < this.colunas; coluna++) {
+                Campo campo = new Campo(linha,coluna);
+                campo.registrarObservador(this);
+                arena.add(campo);
+            }
         }
 
     }
 
-    private void mostrarMinas(){
-        arena.stream().filter( c -> c.isMinado()).forEach(c-> c.setAberto());
+    private void associarVizinhos() {
+        for (var k1 : arena) {
+            for (var k2 : arena) {
+                k1.adicionarVizinho(k2);
+            }
+        }
+    }
 
+    private void sortearMinas() {
+        byte armadas = 0;
+        externo: while(armadas < this.minas){
+            for (var k1 : arena) {
+                if(!(armadas < this.minas)){
+                    break externo;
+
+                }else {
+                    int aleatorio = (int) (1 + Math.random() * 50);
+
+                    if (aleatorio == 1) {
+                        if (k1.minar()) {
+                            armadas++;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
@@ -157,5 +148,5 @@ public class Tabuleiro implements CampoObserver {
  * Turma: Info 0121
  * IFNMG — Campus Almenara
  * GitHub: https://github.com/SrPinheiro
- * Data: 04/08/2022
+ * Data: 04/07/2022
  */
