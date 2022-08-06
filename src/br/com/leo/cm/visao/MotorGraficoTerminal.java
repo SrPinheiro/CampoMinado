@@ -45,7 +45,7 @@ public class MotorGraficoTerminal {
 
     private void ciclo() {
         try{
-            while(!this.estadio.ObjetivoAlcancado()){
+            while(!this.estadio.objetivoAlcancado()){
                 System.out.println(this.estadio);
 
                 String valor = capturarValores();
