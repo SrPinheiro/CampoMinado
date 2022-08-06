@@ -7,6 +7,7 @@ import java.awt.*;
 
 public class PainelTabuleiro extends JPanel {
     PainelTabuleiro(Tabuleiro tb){
+
         setLayout(new GridLayout(tb.getLinhas(), tb.getColunas()));
 
         tb.paraCada(c -> add(new BotaoCampo(c)));
