@@ -1,5 +1,3 @@
-package br.com.leo.cm;
-
 import br.com.leo.cm.visao.TelaPrincipal;
 
 public class Game {
